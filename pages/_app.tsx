@@ -1,9 +1,9 @@
-
-import '../styles/globals.css'
 import type { AppProps /*, AppContext */ } from 'next/app'
+import { Provider } from 'react-redux'
+import { store } from '../src/redux/createStore'
 
 function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+  return <Provider store={store}><Component {...pageProps} /></Provider>
 }
 
 // Only uncomment this method if you have blocking data requirements for

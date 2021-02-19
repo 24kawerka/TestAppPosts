@@ -1,66 +1,96 @@
+import Link from 'next/link'
+import { useEffect } from 'react'
+import { useDispatch } from 'react-redux'
+import axios from 'axios'
+import { postType, setPosts } from '../src/redux/postsReducer'
+import { deletePostThunk } from '../src/redux/createThunk'
+import styled from 'styled-components'
 
-import Head from 'next/head'
-import styles from '../styles/Home.module.css'
+const Wrapper = styled.div`
+font-family: "Tenor Sans", sans-serif;
+text-align:center;
+`
+const Title = styled.h1`
 
-export default function Home() {
+`
+const Li = styled.li`
+list-style-type: none; 
+margin-bottom:50px;
+`
+const Button = styled.button`
+transition-duration: 0.4s;
+background-color: whitesmoke;
+border-radius: 10px;
+width: 200px;
+height: 30px;
+margin-top: 2%;
+text-align: center;
+margin-left:50px;
+&:hover {
+  background-color: red;
+  color: whitesmoke;
+  cursor:pointer
+}
+`
+const CreateLink = styled.div`
+font-size:20px;
+text-decoration:none;
+&:hover{
+  cursor:pointer;
+  text-decoration:underline;
+}
+`
+const MoreInfo = styled.span`
+font-size:16px;
+text-decoration:none;
+&:hover{
+  cursor:pointer;
+  text-decoration:underline;
+}
+`
+const Index = ({ data }) => {
+  const dispatch = useDispatch()
+  useEffect(() => {
+    dispatch(setPosts(data))
+  }, [])
+  const deletePost = (id: number) => {
+    dispatch(deletePostThunk(id))
+    window.location.reload()
+  }
+
   return (
-    <div className={styles.container}>
-      <Head>
-        <title>Create Next TypeScript App</title>
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main className={styles.main}>
-        <h1 className={styles.title}>
-          Welcome to <a href="https://nextjs.org">Next.js!</a>
-        </h1>
-
-        <p className={styles.description}>
-          Get started by editing{' '}
-          <code className={styles.code}>pages/index.js</code>
-        </p>
-
-        <div className={styles.grid}>
-          <a href="https://nextjs.org/docs" className={styles.card}>
-            <h3>Documentation &rarr;</h3>
-            <p>Find in-depth information about Next.js features and API.</p>
-          </a>
-
-          <a href="https://nextjs.org/learn" className={styles.card}>
-            <h3>Learn &rarr;</h3>
-            <p>Learn about Next.js in an interactive course with quizzes!</p>
-          </a>
-
-          <a
-            href="https://github.com/vercel/next.js/tree/master/examples"
-            className={styles.card}
-          >
-            <h3>Examples &rarr;</h3>
-            <p>Discover and deploy boilerplate example Next.js projects.</p>
-          </a>
-
-          <a
-            href="https://vercel.com/import?filter=next.js&utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-            className={styles.card}
-          >
-            <h3>Deploy &rarr;</h3>
-            <p>
-              Instantly deploy your Next.js site to a public URL with Vercel.
-            </p>
-          </a>
-        </div>
-      </main>
-
-      <footer className={styles.footer}>
-        <a
-          href="https://vercel.com?utm_source=create-next-app&utm_medium=default-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Powered by{' '}
-          <img src="/vercel.svg" alt="Vercel Logo" className={styles.logo} />
-        </a>
-      </footer>
-    </div>
+    <Wrapper>
+      <Title>Узнайте для себя что то новое</Title>
+      <Link href="/posts/new"><CreateLink>Или создайте свою собственную статью!</CreateLink></Link>
+      <ul>
+        {data.map((post: postType) =>
+          <Li key={post.id}>
+            <div>
+              <h2>{post.title}</h2>
+            </div>
+            <Link href={`/posts/${post.id}`}>
+              <MoreInfo>
+                Узнать больше
+              </MoreInfo>
+            </Link>
+            <Button onClick={() => deletePost(post.id)}>Удалить статью</Button>
+          </Li>
+        )}
+      </ul>
+    </Wrapper>
   )
 }
+export default Index
+
+
+export const getStaticProps = async () => {
+  const { data } = await axios.get(
+    `https://simple-blog-api.crew.red/posts`
+  );
+
+  return {
+    props: {
+      data
+    },
+  };
+};
